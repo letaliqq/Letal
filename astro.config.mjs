@@ -5,8 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   integrations: [react()],
-  site: 'https://github.com/letaliqq',
-  base: '/letaliqq',
+  site: 'https://letaliqq.github.io',
+  base: '/Letal',
   output: 'static',
   adapter: netlify({
     imageCDN: true,
@@ -19,5 +19,4 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()]
   }
-  // Sin experimental.fonts
 });
