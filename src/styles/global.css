@@ -1,0 +1,38 @@
+@import "tailwindcss";
+/* Registrar la fuente personalizada */
+@theme {
+  --font-new-rocker: 'New Rocker', cursive;
+  --font-raleway: 'Raleway', sans-serif;
+  --font-geist: 'Geist', sans-serif;
+  --font-metrim-letter: 'MetrimLetter', sans-serif;
+  --font-amador: 'Amador', sans-serif;
+}
+
+/* Estilos base */
+body {
+  background-color: black;
+  color: white;
+}
+
+/* ===== FUENTES PERSONALIZADAS ===== */
+@font-face {
+  font-family: 'MetrimLetter';
+  src: url('/fonts/MetrimLetter-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Mejora el rendimiento */
+}
+@font-face {
+  font-family: 'Amador';
+  src: url('/fonts/Amador W01 Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Mejora el rendimiento */
+}
+@font-face {
+  font-family: 'Raleway';
+  src: url('/fonts/Raleway-VariableFont_wght.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Mejora el rendimiento */
+}

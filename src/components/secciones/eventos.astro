@@ -1,0 +1,382 @@
+---
+// src/components/secciones/Eventos.astro
+export interface Props {
+  eventos: {
+    fecha: string;
+    lugar: string;
+    flyer?: string;
+    link?: string;
+  }[];
+}
+
+const { eventos } = Astro.props;
+
+// Configuración de paginación
+const ITEMS_PER_PAGE = 4;
+const totalPages = Math.ceil(eventos.length / ITEMS_PER_PAGE);
+---
+
+<div class="eventos-wrapper">
+  {/* Controles de paginación */}
+  {
+    totalPages > 1 && (
+      <div class="paginacion-controls" id="eventos-paginacion">
+        <button
+          type="button"
+          class="paginacion-btn"
+          id="eventos-pagina-anterior"
+          disabled
+        >
+          <span class="paginacion-icon">‹</span>
+        </button>
+        <span class="paginacion-info">
+          Página <span id="eventos-pagina-actual">1</span> de{" "}
+          <span id="eventos-total-paginas">{totalPages}</span>
+        </span>
+        <button
+          type="button"
+          class="paginacion-btn"
+          id="eventos-pagina-siguiente"
+        >
+          <span class="paginacion-icon">›</span>
+        </button>
+      </div>
+    )
+  }
+
+  <div class="eventos-grid" id="eventos-grid">
+    {
+      eventos.map((e, index) => (
+        <div class="event-card group" data-index={index} style="display: none;">
+          {/* Flyer del evento (si existe) */}
+          {e.flyer && (
+            <div class="event-flyer">
+              <img
+                src={e.flyer}
+                alt={`Flyer para ${e.lugar}`}
+                class="flyer-image"
+              />
+            </div>
+          )}
+
+          <div class="event-content">
+            <div class="event-date">{e.fecha}</div>
+            <div class="event-venue">{e.lugar}</div>
+            <div class="event-divider" />
+
+            {e.link ? (
+              <a
+                href={e.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="event-link"
+              >
+                COMPRAR BOLETOS
+                <span class="event-arrow">→</span>
+              </a>
+            ) : (
+              <span class="event-link disabled">PRÓXIMAMENTE</span>
+            )}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .eventos-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  /* ===== PAGINACIÓN ===== */
+  .paginacion-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .paginacion-btn {
+    background: transparent;
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    border: none;
+  }
+
+  .paginacion-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .paginacion-btn:hover:not(:disabled) {
+    transform: scale(1.1);
+  }
+
+  .paginacion-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .paginacion-info {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    min-width: 140px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .paginacion-info span {
+    color: white;
+    font-weight: bold;
+    min-width: 24px;
+  }
+
+  /* ===== GRID DE EVENTOS ===== */
+  .eventos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    justify-content: center;
+  }
+
+  /* Centrar cuando hay menos de 4 */
+  .eventos-grid:has(> :last-child:nth-child(1)),
+  .eventos-grid:has(> :last-child:nth-child(2)),
+  .eventos-grid:has(> :last-child:nth-child(3)) {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 350px));
+    justify-content: center;
+  }
+
+  /* ===== TARJETA DE EVENTO ===== */
+  .event-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .event-card:hover {
+    border-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ===== FLYER ===== */
+  .event-flyer {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .flyer-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .event-card:hover .flyer-image {
+    transform: scale(1.05);
+  }
+
+  /* ===== CONTENIDO ===== */
+  .event-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .event-date {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .event-venue {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    color: white;
+  }
+
+  .event-divider {
+    height: 2px;
+    width: 3rem;
+    background: linear-gradient(90deg, #8b0000, transparent);
+    margin-bottom: 1rem;
+    transition: width 0.3s ease;
+  }
+
+  .event-card:hover .event-divider {
+    width: 5rem;
+  }
+
+  .event-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9ca3af;
+    transition: color 0.3s ease;
+    margin-top: auto;
+    text-decoration: none;
+  }
+
+  .event-link:hover {
+    color: white;
+  }
+
+  .event-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .event-arrow {
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
+
+  .event-card:hover .event-arrow {
+    transform: translateX(0.5rem);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .event-venue {
+      font-size: 1.25rem;
+    }
+
+    .eventos-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .paginacion-controls {
+      gap: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .event-content {
+      padding: 1rem;
+    }
+
+    .event-date {
+      font-size: 0.7rem;
+    }
+
+    .paginacion-btn {
+      width: 40px;
+      height: 40px;
+    }
+
+    .paginacion-icon {
+      font-size: 1.8rem;
+    }
+
+    .paginacion-info {
+      font-size: 0.9rem;
+      min-width: 120px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    document.addEventListener("DOMContentLoaded", () => {
+      const eventosCards =
+        document.querySelectorAll<HTMLElement>(".event-card");
+      const btnAnterior = document.getElementById("eventos-pagina-anterior");
+      const btnSiguiente = document.getElementById("eventos-pagina-siguiente");
+      const spanPaginaActual = document.getElementById("eventos-pagina-actual");
+      const spanTotalPaginas = document.getElementById("eventos-total-paginas");
+
+      let currentPage = 1;
+      let allItems: HTMLElement[] = Array.from(eventosCards);
+      const ITEMS_PER_PAGE = 4;
+
+      const updatePagination = () => {
+        const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE);
+
+        if (spanTotalPaginas)
+          spanTotalPaginas.textContent = String(totalPages || 1);
+        if (spanPaginaActual)
+          spanPaginaActual.textContent = String(currentPage);
+
+        if (btnAnterior) {
+          (btnAnterior as HTMLButtonElement).disabled =
+            currentPage === 1 || allItems.length === 0;
+        }
+        if (btnSiguiente) {
+          (btnSiguiente as HTMLButtonElement).disabled =
+            currentPage === totalPages || allItems.length === 0;
+        }
+
+        allItems.forEach((item) => (item.style.display = "none"));
+
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const end = Math.min(start + ITEMS_PER_PAGE, allItems.length);
+
+        for (let i = start; i < end; i++) {
+          if (allItems[i]) allItems[i].style.display = "flex";
+        }
+      };
+
+      if (btnSiguiente) {
+        btnSiguiente.addEventListener("click", (e: MouseEvent) => {
+          e.preventDefault();
+          const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE);
+          if (currentPage < totalPages) {
+            currentPage++;
+            updatePagination();
+          }
+        });
+      }
+
+      if (btnAnterior) {
+        btnAnterior.addEventListener("click", (e: MouseEvent) => {
+          e.preventDefault();
+          if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+          }
+        });
+      }
+
+      // Inicializar
+      updatePagination();
+    });
+  })();
+</script>

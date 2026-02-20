@@ -1,0 +1,215 @@
+---
+import RootLayout from "../layouts/RootLayout.astro";
+import Header from "../components/header.astro";
+import Hero from "../components/hero.astro";
+
+// Importa los componentes de secciones
+import Galeria from "../components/secciones/galeria.astro";
+import Discografia from "../components/secciones/discografia.astro";
+import Eventos from "../components/secciones/eventos.astro";
+import Biografia from "../components/secciones/biografia.astro";
+import Contacto from "../components/secciones/contacto.astro";
+
+// Importa los estilos
+import "../styles/secciones.css";
+
+// Importa datos del CMS
+import heroData from "../content/hero.json";
+
+// Define los tipos para discos con plataformas
+type Disco = {
+  titulo: string;
+  año: string;
+  cover?: string;
+  plataformas?: {
+    spotify?: string;
+    youtube?: string;
+    apple?: string;
+    deezer?: string;
+  };
+};
+
+type Seccion = {
+  id: string;
+  data: {
+    title: string;
+    section_type:
+      | "galeria"
+      | "eventos"
+      | "discografia"
+      | "biografia"
+      | "contacto";
+    images?: {
+      image: string;
+      title?: string;
+      description?: string;
+      date?: string;
+      category?: string;
+    }[];
+    discos?: Disco[];
+    eventos?: { fecha: string; lugar: string; flyer?: string; link?: string }[];
+    body?: string;
+    imagen?: string; // <-- NUEVO (debe coincidir con el CMS)
+    imagen_titulo?: string; // <-- NUEVO
+    imagen_posicion?: "izquierda" | "derecha" | "centro"; // <-- NUEVO
+    contacto?: { tipo: string; valor: string; link?: string }[];
+    contacto_directo?: { tipo: string; valor: string }[];
+    order: number;
+    backgroundType?: string;
+    backgroundSrc?: string;
+    backgroundOpacity?: number;
+  };
+};
+
+// Obtiene todas las secciones del CMS
+const secciones = await Astro.glob("../content/secciones/*.{md,json}");
+
+// Procesa y ordena las secciones
+const sections: Seccion[] = secciones
+  .map((seccion) => ({
+    id: seccion.frontmatter?.section_type || seccion.section_type,
+    data: {
+      title: seccion.frontmatter?.title || seccion.title,
+      section_type: seccion.frontmatter?.section_type || seccion.section_type,
+      images: seccion.frontmatter?.images || seccion.images || [],
+      discos: seccion.frontmatter?.discos || seccion.discos || [],
+      eventos: seccion.frontmatter?.eventos || seccion.eventos || [],
+      body: seccion.frontmatter?.body || seccion.body || "",
+
+      // IMPORTANTE: Corregir la extracción de los campos de imagen
+      imagen: seccion.frontmatter?.imagen || seccion.imagen,
+      imagen_titulo:
+        seccion.frontmatter?.imagen_titulo || seccion.imagen_titulo,
+      imagen_posicion:
+        seccion.frontmatter?.imagen_posicion ||
+        seccion.imagen_posicion ||
+        "centro",
+
+      // ... resto de campos
+      contacto: seccion.frontmatter?.contacto || seccion.contacto || [],
+      contacto_directo:
+        seccion.frontmatter?.contacto_directo || seccion.contacto_directo || [],
+      order: seccion.frontmatter?.order || seccion.order || 999,
+      backgroundType:
+        seccion.frontmatter?.background?.type || seccion.background?.type,
+      backgroundSrc:
+        seccion.frontmatter?.background?.src || seccion.background?.src,
+      backgroundOpacity:
+        seccion.frontmatter?.background?.opacity ||
+        seccion.background?.opacity ||
+        0.4,
+    },
+  }))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<RootLayout>
+  <main class="bg-black text-white">
+    <Header />
+
+    <Hero
+      videoSrc={heroData.videoSrc}
+      title={heroData.title}
+      primaryButtonText={heroData.primaryButtonText}
+      primaryButtonLink={heroData.primaryButtonLink}
+      secondaryButtonText={heroData.secondaryButtonText}
+      secondaryButtonLink={heroData.secondaryButtonLink}
+      backgroundImage={heroData.backgroundImage}
+      showScrollIndicator={true}
+    />
+
+    {/* ===== SECCIONES DINÁMICAS DEL CMS ===== */}
+    {
+      sections.map((sec, index) => (
+        <section
+          id={sec.id}
+          class={`section-base relative overflow-hidden parallax-section ${
+            index % 2 === 0 ? "bg-black" : "bg-zinc-900/50"
+          }`}
+        >
+          {/* Fondo personalizado desde CMS */}
+          {sec.data.backgroundSrc && sec.data.backgroundType !== "none" && (
+            <div class="absolute inset-0 z-0 parallax-wrapper">
+              {sec.data.backgroundType === "video" ? (
+                <video
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  class="parallax-media"
+                  data-speed="0.4"
+                  style={`opacity: ${sec.data.backgroundOpacity}; object-fit: cover;`}
+                >
+                  <source src={sec.data.backgroundSrc} type="video/mp4" />
+                </video>
+              ) : (
+                <div
+                  class="parallax-media"
+                  data-speed="0.5"
+                  style={`background-image: url('${sec.data.backgroundSrc}'); opacity: ${sec.data.backgroundOpacity};`}
+                />
+              )}
+              <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80 z-1" />
+            </div>
+          )}
+
+          {/* Overlay de gradiente */}
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black z-1" />
+          <div class="section-texture" />
+
+          {/* Contenido de la sección */}
+          <div class="container-custom relative z-10">
+            {/* Encabezado de sección */}
+            <div class="section-header">
+              <span class="section-number">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h2 class="font-['New_Rocker'] text-5xl md:text-7xl font-black tracking-tighter">
+                <span class="text-white">{sec.data.title}</span>
+              </h2>
+            </div>
+
+            {/* ===== COMPONENTES DE SECCIÓN CON DATOS DEL CMS ===== */}
+            {sec.data.section_type === "galeria" && (
+              <Galeria images={sec.data.images || []} />
+            )}
+
+            {sec.data.section_type === "discografia" && (
+              <Discografia discos={sec.data.discos || []} />
+            )}
+
+            {sec.data.section_type === "eventos" && (
+              <Eventos eventos={sec.data.eventos || []} />
+            )}
+
+            {sec.data.section_type === "biografia" && (
+              <Biografia
+                body={sec.data.body || ""}
+                imagen={sec.data.imagen}
+                imagen_titulo={sec.data.imagen_titulo}
+                imagen_posicion={sec.data.imagen_posicion}
+              />
+            )}
+            {sec.data.section_type === "contacto" && (
+              <Contacto
+                contacto={sec.data.contacto || []}
+                contacto_directo={sec.data.contacto_directo || []}
+              />
+            )}
+          </div>
+        </section>
+      ))
+    }
+
+    {/* ===== FOOTER ===== */}
+    <footer class="footer">
+      <div class="container-custom">
+        <div class="footer-content">
+          <div class="footer-logo">LETAL</div>
+          <div class="footer-links"></div>
+          <div class="footer-copyright">© 2026 LETAL</div>
+        </div>
+      </div>
+    </footer>
+  </main>
+</RootLayout>

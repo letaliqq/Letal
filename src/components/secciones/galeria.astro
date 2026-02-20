@@ -1,0 +1,414 @@
+---
+// src/components/secciones/Galeria.astro
+import "../../styles/galeria.css";
+
+export interface Props {
+  images: {
+    image: string;
+    title?: string;
+    description?: string;
+    date?: string;
+    category?: string;
+  }[];
+}
+
+const { images } = Astro.props;
+
+const categorias = images
+  .map((img) => img.category)
+  .filter((cat): cat is string => cat !== undefined && cat !== null);
+const categoriasUnicas = [...new Set(categorias)];
+
+const ITEMS_PER_PAGE = 8;
+const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
+---
+
+<div class="galeria-wrapper">
+  {/* Filtros de galería */}
+  {
+    categoriasUnicas.length > 0 && (
+      <div class="galeria-filtros" id="galeria-filtros">
+        <button
+          type="button"
+          class="galeria-filtro-btn active"
+          data-filter="all"
+        >
+          TODAS
+        </button>
+        {categoriasUnicas.map((cat) => (
+          <button type="button" class="galeria-filtro-btn" data-filter={cat}>
+            {cat.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  {/* Controles de paginación */}
+  {
+    totalPages > 1 && (
+      <div class="paginacion-controls" id="paginacion-controls">
+        <button
+          type="button"
+          class="paginacion-btn"
+          id="pagina-anterior"
+          disabled
+        >
+          <span class="paginacion-icon">‹</span>
+        </button>
+        <span class="paginacion-info">
+          Página <span id="pagina-actual">1</span> de{" "}
+          <span id="total-paginas">{totalPages}</span>
+        </span>
+        <button type="button" class="paginacion-btn" id="pagina-siguiente">
+          <span class="paginacion-icon">›</span>
+        </button>
+      </div>
+    )
+  }
+
+  {/* Grid de imágenes */}
+  <div class="galeria-grid" id="galeria-grid">
+    {
+      images.map((img, index) => (
+        <div
+          class="gallery-item"
+          data-category={img.category || "otras"}
+          data-index={index}
+          data-image={img.image}
+          data-title={img.title || `GALERÍA ${index + 1}`}
+          style="display: none;"
+        >
+          <div class="gallery-card">
+            <div
+              class="gallery-image"
+              style={`background-image: url('${img.image}');`}
+            >
+              <div class="gallery-overlay">
+                <div class="gallery-info">
+                  <h3 class="gallery-title">
+                    {img.title || `GALERÍA ${index + 1}`}
+                  </h3>
+                  {img.date && (
+                    <p class="gallery-date">
+                      📅{" "}
+                      {new Date(img.date).toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                  )}
+                  {img.description && (
+                    <p class="gallery-description">{img.description}</p>
+                  )}
+                  {img.category && (
+                    <span class="gallery-category">
+                      {img.category.toUpperCase()}
+                    </span>
+                  )}
+                  <div class="gallery-hint">
+                    <span>🔍</span> Click para ampliar
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-number">
+                {String(index + 1).padStart(2, "0")}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  {/* Lightbox */}
+  <div id="lightbox" class="lightbox">
+    <div class="lightbox-overlay"></div>
+    <button type="button" class="lightbox-close" id="lightbox-close">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev">
+      <svg
+        width="30"
+        height="30"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next">
+      <svg
+        width="30"
+        height="30"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+    <div class="lightbox-container">
+      <div class="lightbox-content">
+        <div class="lightbox-image-wrapper">
+          <img id="lightbox-img" src="" alt="" />
+        </div>
+        <div class="lightbox-footer">
+          <div class="lightbox-caption" id="lightbox-caption"></div>
+          <div class="lightbox-counter" id="lightbox-counter">1 / 10</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      document.addEventListener("DOMContentLoaded", () => {
+        // Elementos de la galería
+        const galleryItems =
+          document.querySelectorAll<HTMLElement>(".gallery-item");
+
+        // Elementos de paginación
+        const btnAnterior = document.getElementById("pagina-anterior");
+        const btnSiguiente = document.getElementById("pagina-siguiente");
+        const spanPaginaActual = document.getElementById("pagina-actual");
+        const spanTotalPaginas = document.getElementById("total-paginas");
+
+        // Elementos del lightbox
+        const lightbox = document.getElementById(
+          "lightbox",
+        ) as HTMLElement | null;
+        const lightboxImg = document.getElementById(
+          "lightbox-img",
+        ) as HTMLImageElement | null;
+        const lightboxCaption = document.getElementById(
+          "lightbox-caption",
+        ) as HTMLElement | null;
+        const lightboxCounter = document.getElementById(
+          "lightbox-counter",
+        ) as HTMLElement | null;
+        const lightboxClose = document.getElementById(
+          "lightbox-close",
+        ) as HTMLElement | null;
+        const lightboxPrev = document.getElementById(
+          "lightbox-prev",
+        ) as HTMLElement | null;
+        const lightboxNext = document.getElementById(
+          "lightbox-next",
+        ) as HTMLElement | null;
+
+        // Variables de estado
+        let currentPage = 1;
+        let currentLightboxIndex = 0;
+        let allItems: HTMLElement[] = Array.from(galleryItems);
+        let filteredItems: HTMLElement[] = [];
+        const ITEMS_PER_PAGE = 8;
+
+        // Función para actualizar la paginación
+        const updatePagination = () => {
+          if (!allItems.length) return;
+
+          const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+
+          if (spanTotalPaginas)
+            spanTotalPaginas.textContent = String(totalPages || 1);
+          if (spanPaginaActual)
+            spanPaginaActual.textContent = String(currentPage);
+
+          if (btnAnterior) {
+            (btnAnterior as HTMLButtonElement).disabled =
+              currentPage === 1 || filteredItems.length === 0;
+          }
+          if (btnSiguiente) {
+            (btnSiguiente as HTMLButtonElement).disabled =
+              currentPage === totalPages || filteredItems.length === 0;
+          }
+
+          allItems.forEach((item) => (item.style.display = "none"));
+          if (filteredItems.length === 0) return;
+
+          const start = (currentPage - 1) * ITEMS_PER_PAGE;
+          const end = Math.min(start + ITEMS_PER_PAGE, filteredItems.length);
+
+          for (let i = start; i < end; i++) {
+            if (filteredItems[i]) filteredItems[i].style.display = "block";
+          }
+        };
+
+        // Función para aplicar filtros
+        const applyFilter = (filterValue: string) => {
+          filteredItems = allItems.filter((item) =>
+            filterValue === "all"
+              ? true
+              : item.dataset.category === filterValue,
+          );
+          currentPage = 1;
+          updatePagination();
+
+          const counter =
+            document.querySelector<HTMLElement>(".galeria-counter");
+          if (counter) {
+            counter.textContent = `${filteredItems.length} ${filteredItems.length === 1 ? "IMAGEN" : "IMÁGENES"} EN TOTAL`;
+          }
+        };
+
+        // Eventos de paginación
+        if (btnSiguiente) {
+          btnSiguiente.addEventListener("click", (e: MouseEvent) => {
+            e.preventDefault();
+            const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+            if (currentPage < totalPages) {
+              currentPage++;
+              updatePagination();
+            }
+          });
+        }
+
+        if (btnAnterior) {
+          btnAnterior.addEventListener("click", (e: MouseEvent) => {
+            e.preventDefault();
+            if (currentPage > 1) {
+              currentPage--;
+              updatePagination();
+            }
+          });
+        }
+
+        // Funciones del lightbox
+        const getVisibleItems = (): HTMLElement[] => filteredItems;
+
+        const updateLightboxCounter = (): void => {
+          if (!lightboxCounter) return;
+          const items = getVisibleItems();
+          lightboxCounter.textContent = `${currentLightboxIndex + 1} / ${items.length}`;
+        };
+
+        const openLightbox = (index: number): void => {
+          const items = getVisibleItems();
+          if (!items.length || !lightbox || !lightboxImg || !lightboxCaption)
+            return;
+
+          const clickedItem = document.querySelector(
+            `[data-index="${index}"]`,
+          ) as HTMLElement;
+          currentLightboxIndex = items.findIndex(
+            (item) => item === clickedItem,
+          );
+          if (currentLightboxIndex === -1) currentLightboxIndex = 0;
+
+          const item = items[currentLightboxIndex];
+          if (!item) return;
+
+          lightboxImg.src = item.dataset.image || "";
+          lightboxCaption.textContent = item.dataset.title || "";
+          updateLightboxCounter();
+          lightbox.classList.add("show");
+        };
+
+        const closeLightbox = (): void => lightbox?.classList.remove("show");
+
+        const prevImage = (): void => {
+          if (!lightboxImg || !lightboxCaption) return;
+          const items = getVisibleItems();
+          if (!items.length) return;
+
+          currentLightboxIndex =
+            (currentLightboxIndex - 1 + items.length) % items.length;
+          const item = items[currentLightboxIndex];
+          if (!item) return;
+
+          lightboxImg.src = item.dataset.image || "";
+          lightboxCaption.textContent = item.dataset.title || "";
+          updateLightboxCounter();
+        };
+
+        const nextImage = (): void => {
+          if (!lightboxImg || !lightboxCaption) return;
+          const items = getVisibleItems();
+          if (!items.length) return;
+
+          currentLightboxIndex = (currentLightboxIndex + 1) % items.length;
+          const item = items[currentLightboxIndex];
+          if (!item) return;
+
+          lightboxImg.src = item.dataset.image || "";
+          lightboxCaption.textContent = item.dataset.title || "";
+          updateLightboxCounter();
+        };
+
+        // Eventos de imágenes
+        allItems.forEach((item, index) => {
+          item.addEventListener("click", () => openLightbox(index));
+        });
+
+        // Eventos del lightbox
+        if (lightboxClose)
+          lightboxClose.addEventListener("click", closeLightbox);
+        if (lightboxPrev) lightboxPrev.addEventListener("click", prevImage);
+        if (lightboxNext) lightboxNext.addEventListener("click", nextImage);
+
+        // Teclado
+        document.addEventListener("keydown", (e: KeyboardEvent) => {
+          if (!lightbox?.classList.contains("show")) return;
+          if (e.key === "Escape") closeLightbox();
+          if (e.key === "ArrowLeft") prevImage();
+          if (e.key === "ArrowRight") nextImage();
+        });
+
+        // Click en overlay
+        lightbox?.addEventListener("click", (e: MouseEvent) => {
+          const target = e.target as HTMLElement;
+          if (
+            target === lightbox ||
+            target.classList.contains("lightbox-overlay")
+          ) {
+            closeLightbox();
+          }
+        });
+
+        // Filtros de galería (clases específicas)
+        const filterButtons = document.querySelectorAll<HTMLElement>(
+          ".galeria-filtro-btn",
+        );
+
+        if (filterButtons.length) {
+          filterButtons.forEach((button) => {
+            button.addEventListener("click", function (e: MouseEvent) {
+              e.preventDefault();
+              filterButtons.forEach((btn) => btn.classList.remove("active"));
+              this.classList.add("active");
+              applyFilter(this.dataset.filter || "all");
+            });
+          });
+
+          const todasBtn = Array.from(filterButtons).find(
+            (btn) => btn.dataset.filter === "all",
+          );
+          if (todasBtn) {
+            setTimeout(() => todasBtn.click(), 100);
+          } else {
+            filteredItems = allItems;
+            updatePagination();
+          }
+        } else {
+          filteredItems = allItems;
+          updatePagination();
+        }
+      });
+    })();
+  </script>
+</div>

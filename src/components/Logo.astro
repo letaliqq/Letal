@@ -1,0 +1,41 @@
+---
+import { Image } from "astro:assets";
+import LogoLetal from "../assets/Letal_Vector.png";
+---
+
+<a href="#" class="transition-all duration-300 block" id="logo-link">
+  <Image
+    src={LogoLetal}
+    alt="Logo Letal"
+    class="w-24 h-18 sm:w-120 sm:h-90 object-contain transition-all duration-400"
+    id="logo-img"
+  />
+</a>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoImg = document.getElementById("logo-img");
+    const logoLink = document.getElementById("logo-link");
+    const header = document.getElementById("header"); // Si necesitas modificar el header
+
+    if (!logoImg || !logoLink) return;
+
+    const initialClasses = ["w-24", "h-18", "sm:w-120", "sm:h-90"];
+    const reducedClasses = ["w-24", "h-18"];
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 100) {
+        logoImg.classList.remove(...initialClasses);
+        logoImg.classList.add(...reducedClasses);
+      } else {
+        logoImg.classList.remove(...reducedClasses);
+        logoImg.classList.add(...initialClasses);
+      }
+    });
+
+    logoLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+</script>

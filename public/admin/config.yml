@@ -1,0 +1,174 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  - name: "config"
+    label: "Configuración Global"
+    files:
+      - name: "hero"
+        label: "Hero Section"
+        file: "src/content/hero.json"
+        fields:
+          - {
+              label: "Título",
+              name: "title",
+              widget: "string",
+              default: "Fear, Bloody, Horror and Pain.",
+            }
+          - {
+              label: "Video URL",
+              name: "videoSrc",
+              widget: "string",
+              required: false,
+            }
+          - {
+              label: "Imagen de fondo",
+              name: "backgroundImage",
+              widget: "image",
+              required: false,
+            }
+          - {
+              label: "Texto Botón 1",
+              name: "primaryButtonText",
+              widget: "string",
+              default: "PRÓXIMOS EVENTOS",
+            }
+          - {
+              label: "Link Botón 1",
+              name: "primaryButtonLink",
+              widget: "string",
+              default: "#eventos",
+            }
+          - {
+              label: "Texto Botón 2",
+              name: "secondaryButtonText",
+              widget: "string",
+              default: "ESCUCHAR",
+            }
+          - {
+              label: "Link Botón 2",
+              name: "secondaryButtonLink",
+              widget: "string",
+              default: "#discografia",
+            }
+
+  - name: "secciones"
+    label: "Secciones"
+    label_singular: "Sección"
+    folder: "src/content/secciones"
+    create: true
+    slug: "{{section_type}}"
+    fields:
+      - { label: "Título", name: "title", widget: "string" }
+      - label: "Tipo de Sección"
+        name: "section_type"
+        widget: "select"
+        options:
+          - { label: "Galería", value: "galeria" }
+          - { label: "Discografía", value: "discografia" }
+          - { label: "Eventos", value: "eventos" }
+          - { label: "Biografía", value: "biografia" }
+          - { label: "Contacto", value: "contacto" }
+      - { label: "Orden", name: "order", widget: "number", value_type: "int" }
+
+      - label: "Fondo de sección"
+        name: "background"
+        widget: "object"
+        collapsed: true
+        fields:
+          - label: "Tipo"
+            name: "type"
+            widget: "select"
+            options:
+              - { label: "Imagen", value: "image" }
+              - { label: "Video", value: "video" }
+              - { label: "Ninguno", value: "none" }
+          - { label: "Archivo", name: "src", widget: "image", required: false }
+          - {
+              label: "Opacidad",
+              name: "opacity",
+              widget: "number",
+              min: 0,
+              max: 1,
+              step: 0.1,
+              default: 0.5,
+            }
+
+      - label: "Galería"
+        name: "images"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Imagen", name: "image", widget: "image" }
+          - { label: "Título", name: "title", widget: "string" }
+          - {
+              label: "Descripción",
+              name: "description",
+              widget: "text",
+              required: false,
+            }
+          - {
+              label: "Fecha",
+              name: "date",
+              widget: "datetime",
+              required: false,
+            }
+          - label: "Categoría"
+            name: "category"
+            widget: "select"
+            options: ["conciertos", "backstage", "fans", "estudio", "promo"]
+            required: false
+
+      - label: "Discos"
+        name: "discos"
+        widget: "list"
+        fields:
+          - { label: "Título", name: "titulo", widget: "string" }
+          - { label: "Año", name: "año", widget: "string" }
+          - { label: "Carátula", name: "cover", widget: "image" }
+          - label: "Plataformas"
+            name: "plataformas"
+        widget: "object"
+        fields:
+          - { label: "Spotify URL", name: "spotify", widget: "string", required: false }
+          - { label: "YouTube URL", name: "youtube", widget: "string", required: false }
+
+
+      - label: "Eventos"
+        name: "eventos"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Fecha", name: "fecha", widget: "string" }
+          - { label: "Lugar", name: "lugar", widget: "string" }
+          - { label: "Link", name: "link", widget: "string", required: false }
+
+      - label: "Biografía"
+        name: "body"
+        widget: "markdown"
+        required: false
+
+      - label: "Imagen para biografía"
+        name: "imagen"
+        widget: "image"
+        required: false
+
+      - label: "Título de la imagen"
+        name: "imagen_titulo"
+        widget: "string"
+        required: false
+        hint: "Texto descriptivo para la imagen"
+
+      - label: "Posición de la imagen"
+        name: "imagen_posicion"
+        widget: "select"
+        options:
+          - { label: "Centro (arriba)", value: "centro" }
+          - { label: "Izquierda (flotante)", value: "izquierda" }
+          - { label: "Derecha (flotante)", value: "derecha" }
+        default: "centro"
+        required: false

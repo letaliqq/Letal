@@ -1,0 +1,139 @@
+---
+// src/components/secciones/Contacto.astro
+export interface Props {
+  contacto: { tipo: string; valor: string; link?: string }[];
+  contacto_directo: { tipo: string; valor: string }[];
+}
+
+const { contacto, contacto_directo } = Astro.props;
+
+// Función para obtener el ícono según el tipo
+const getIcono = (tipo: string): string => {
+  const iconos: Record<string, string> = {
+    instagram: "",
+    twitter: "",
+    facebook: "",
+    youtube: "",
+    spotify: "",
+    tiktok: "",
+    default: "",
+  };
+  return iconos[tipo.toLowerCase()] || iconos.default;
+};
+---
+
+<div class="contact-grid">
+  {/* Redes Sociales */}
+  <div>
+    <h3 class="contact-subtitle">REDES SOCIALES</h3>
+    <div class="space-y-6">
+      {
+        contacto.map((item) => (
+          <a
+            href={item.link || "#"}
+            target={item.link ? "_blank" : "_self"}
+            rel="noopener noreferrer"
+            class="contact-item group"
+          >
+            <span class="flex items-center gap-3">
+              <span class="contact-icon">{getIcono(item.tipo)}</span>
+              <span>{item.tipo}</span>
+            </span>
+            <span class="contact-arrow">→</span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+
+  {/* Contacto Directo */}
+  <div>
+    <h3 class="contact-subtitle">CONTACTO</h3>
+    <div class="space-y-6">
+      {
+        contacto_directo.map((item) => (
+          <div class="contact-info">{item.valor}</div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+
+  @media (min-width: 768px) {
+    .contact-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6rem;
+    }
+  }
+
+  .contact-subtitle {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.5rem;
+    font-weight: 300;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .contact-item:hover {
+    color: #8b0000;
+    border-bottom-color: #8b0000;
+    padding-left: 1rem;
+  }
+
+  .contact-icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .contact-arrow {
+    color: #4b5563;
+    transition: all 0.3s ease;
+    font-size: 1.5rem;
+  }
+
+  .contact-item:hover .contact-arrow {
+    color: #8b0000;
+    transform: translateX(5px);
+  }
+
+  .contact-info {
+    font-size: 1.5rem;
+    font-weight: 300;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .contact-info:hover {
+    border-bottom-color: #8b0000;
+    color: #8b0000;
+  }
+
+  @media (max-width: 768px) {
+    .contact-item,
+    .contact-info {
+      font-size: 1.25rem;
+    }
+  }
+</style>

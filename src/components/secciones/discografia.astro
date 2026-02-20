@@ -1,0 +1,291 @@
+---
+// src/components/secciones/Discografia.astro
+import "/src/styles/discografia.css";
+
+export interface Props {
+  discos: {
+    titulo: string;
+    año: string;
+    cover?: string;
+    plataformas?: {
+      spotify?: string;
+      youtube?: string;
+      apple?: string;
+      deezer?: string;
+    };
+  }[];
+}
+
+const { discos } = Astro.props;
+
+// Función para extraer ID de Spotify
+const getSpotifyId = (url: string): string => {
+  const patterns = [
+    /album\/([a-zA-Z0-9]+)/,
+    /track\/([a-zA-Z0-9]+)/,
+    /playlist\/([a-zA-Z0-9]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return "";
+};
+
+// Función para extraer ID de YouTube
+const getYoutubeId = (url: string): string => {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return "";
+};
+
+// Obtener años únicos para filtros
+const años = [...new Set(discos.map((disco) => disco.año))].sort().reverse();
+
+// Configuración de paginación
+const ITEMS_PER_PAGE = 8;
+const totalPages = Math.ceil(discos.length / ITEMS_PER_PAGE);
+---
+
+<div class="discografia-wrapper">
+  {/* Filtros por año - clases específicas */}
+  {
+    años.length > 0 && (
+      <div class="discografia-filtros" id="discografia-filtros">
+        <button
+          type="button"
+          class="discografia-filtro-btn active"
+          data-filter="all"
+        >
+          TODOS
+        </button>
+        {años.map((año) => (
+          <button
+            type="button"
+            class="discografia-filtro-btn"
+            data-filter={año}
+          >
+            {año}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  {/* Controles de paginación */}
+  {
+    totalPages > 1 && (
+      <div class="paginacion-controls" id="paginacion-controls">
+        <button
+          type="button"
+          class="paginacion-btn"
+          id="pagina-anterior"
+          disabled
+        >
+          <span class="paginacion-icon">‹</span>
+        </button>
+        <span class="paginacion-info">
+          Página <span id="pagina-actual">1</span> de{" "}
+          <span id="total-paginas">{totalPages}</span>
+        </span>
+        <button type="button" class="paginacion-btn" id="pagina-siguiente">
+          <span class="paginacion-icon">›</span>
+        </button>
+      </div>
+    )
+  }
+
+  {/* Grid de discos */}
+  <div class="discografia-grid" id="discografia-grid">
+    {
+      discos.map((disco, index) => (
+        <div
+          class="disco-card"
+          data-index={index}
+          data-año={disco.año}
+          style="display: none;"
+        >
+          {/* Carátula cuadrada */}
+          <div class="disco-cover">
+            {disco.cover ? (
+              <img src={disco.cover} alt={disco.titulo} class="cover-image" />
+            ) : (
+              <div class="cover-placeholder">
+                <span>{disco.titulo.charAt(0)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Información del disco */}
+          <div class="disco-info">
+            <h3 class="disco-titulo">{disco.titulo}</h3>
+            <p class="disco-ano">{disco.año}</p>
+          </div>
+
+          {/* Reproductores embebidos */}
+          <div class="reproductores">
+            {/* Reproductor de Spotify */}
+            {disco.plataformas?.spotify && (
+              <div class="reproductor-item">
+                <div class="reproductor-header">
+                  <span class="reproductor-label">Spotify</span>
+                </div>
+                <iframe
+                  src={`https://open.spotify.com/embed/album/${getSpotifyId(disco.plataformas.spotify)}`}
+                  width="100%"
+                  height="80"
+                  frameborder="0"
+                  allowtransparency="true"
+                  allow="encrypted-media"
+                  class="spotify-embed"
+                  title={`Reproductor de Spotify - ${disco.titulo}`}
+                />
+              </div>
+            )}
+
+            {/* Reproductor de YouTube */}
+            {disco.plataformas?.youtube && (
+              <div class="reproductor-item">
+                <div class="reproductor-header">
+                  <span class="reproductor-label">YouTube</span>
+                </div>
+                <iframe
+                  src={`https://www.youtube.com/embed/${getYoutubeId(disco.plataformas.youtube)}`}
+                  width="100%"
+                  height="120"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  class="youtube-embed"
+                  title={`Reproductor de YouTube - ${disco.titulo}`}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  (function () {
+    document.addEventListener("DOMContentLoaded", () => {
+      // Elementos específicos de discografía
+      const discoCards = document.querySelectorAll<HTMLElement>(".disco-card");
+      const filterButtons = document.querySelectorAll<HTMLElement>(
+        ".discografia-filtro-btn",
+      );
+
+      // Elementos de paginación
+      const btnAnterior = document.getElementById("pagina-anterior");
+      const btnSiguiente = document.getElementById("pagina-siguiente");
+      const spanPaginaActual = document.getElementById("pagina-actual");
+      const spanTotalPaginas = document.getElementById("total-paginas");
+
+      // Variables de estado
+      let currentPage = 1;
+      let allItems: HTMLElement[] = Array.from(discoCards);
+      let filteredItems: HTMLElement[] = [];
+      const ITEMS_PER_PAGE = 8;
+
+      // Función para actualizar la paginación
+      const updatePagination = () => {
+        if (!allItems.length) return;
+
+        const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+
+        if (spanTotalPaginas)
+          spanTotalPaginas.textContent = String(totalPages || 1);
+        if (spanPaginaActual)
+          spanPaginaActual.textContent = String(currentPage);
+
+        if (btnAnterior) {
+          (btnAnterior as HTMLButtonElement).disabled =
+            currentPage === 1 || filteredItems.length === 0;
+        }
+        if (btnSiguiente) {
+          (btnSiguiente as HTMLButtonElement).disabled =
+            currentPage === totalPages || filteredItems.length === 0;
+        }
+
+        allItems.forEach((item) => (item.style.display = "none"));
+        if (filteredItems.length === 0) return;
+
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const end = Math.min(start + ITEMS_PER_PAGE, filteredItems.length);
+
+        for (let i = start; i < end; i++) {
+          if (filteredItems[i]) filteredItems[i].style.display = "flex";
+        }
+      };
+
+      // Función para aplicar filtros
+      const applyFilter = (filterValue: string) => {
+        filteredItems = allItems.filter((item) =>
+          filterValue === "all" ? true : item.dataset.año === filterValue,
+        );
+        currentPage = 1;
+        updatePagination();
+      };
+
+      // Eventos de paginación
+      if (btnSiguiente) {
+        btnSiguiente.addEventListener("click", (e: MouseEvent) => {
+          e.preventDefault();
+          const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+          if (currentPage < totalPages) {
+            currentPage++;
+            updatePagination();
+          }
+        });
+      }
+
+      if (btnAnterior) {
+        btnAnterior.addEventListener("click", (e: MouseEvent) => {
+          e.preventDefault();
+          if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+          }
+        });
+      }
+
+      // Filtros específicos de discografía
+      if (filterButtons.length) {
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", function (e: MouseEvent) {
+            e.preventDefault();
+
+            filterButtons.forEach((btn) => btn.classList.remove("active"));
+            this.classList.add("active");
+            applyFilter(this.dataset.filter || "all");
+          });
+        });
+
+        const todosBtn = Array.from(filterButtons).find(
+          (btn) => btn.dataset.filter === "all",
+        );
+        if (todosBtn) {
+          setTimeout(() => {
+            todosBtn.click();
+          }, 100);
+        } else {
+          filteredItems = allItems;
+          updatePagination();
+        }
+      } else {
+        filteredItems = allItems;
+        updatePagination();
+      }
+    });
+  })();
+</script>

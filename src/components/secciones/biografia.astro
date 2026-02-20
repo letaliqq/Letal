@@ -1,0 +1,198 @@
+---
+// src/components/secciones/Biografia.astro
+export interface Props {
+  body: string;
+  imagen?: string;
+  imagen_titulo?: string;
+  imagen_posicion?: "izquierda" | "derecha" | "centro";
+}
+
+const {
+  body,
+  imagen,
+  imagen_titulo = "LETAL en concierto",
+  imagen_posicion = "derecha",
+} = Astro.props;
+
+// Dividir el texto en párrafos
+const parrafos = body.split("\n\n").filter((p) => p.trim() !== "");
+---
+
+<div class="biografia-wrapper">
+  {/* Contenedor flexible para imagen y texto */}
+  <div class="biografia-flex">
+    {/* Columna de texto (ocupa el espacio disponible) */}
+    <div class="biografia-texto-columna">
+      <div class="biografia-contenido">
+        <div class="biografia-texto-contenedor">
+          {parrafos.map((p) => <p class="biografia-parrafo">{p}</p>)}
+        </div>
+        <div class="biografia-divider"></div>
+      </div>
+    </div>
+
+    {/* Columna de imagen (solo si hay imagen y posición es derecha) */}
+    {
+      imagen && imagen_posicion === "derecha" && (
+        <div class="biografia-imagen-columna">
+          <div class="biografia-imagen-contenedor">
+            <img src={imagen} alt={imagen_titulo} class="biografia-img" />
+            {imagen_titulo && (
+              <p class="biografia-img-titulo">{imagen_titulo}</p>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    {/* Imagen centrada (ocupa todo el ancho) */}
+    {
+      imagen && imagen_posicion === "centro" && (
+        <div class="biografia-imagen-centro">
+          <img src={imagen} alt={imagen_titulo} class="biografia-img" />
+          {imagen_titulo && <p class="biografia-img-titulo">{imagen_titulo}</p>}
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .biografia-wrapper {
+    max-width: 1980px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  /* ===== CONTENEDOR FLEXIBLE ===== */
+  .biografia-flex {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+
+  /* ===== COLUMNA DE TEXTO ===== */
+  .biografia-texto-columna {
+    flex: 1;
+    min-width: 0; /* Evita desbordamiento */
+  }
+
+  .biografia-contenido {
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(2px);
+    border-left: 3px solid #8b0000;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+
+  .biografia-texto-contenedor {
+    overflow: hidden;
+  }
+
+  .biografia-parrafo {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+    text-align: justify;
+  }
+
+  .biografia-parrafo:last-child {
+    margin-bottom: 0;
+  }
+
+  .biografia-divider {
+    margin-top: 2rem;
+    height: 2px;
+    width: 100px;
+    background: linear-gradient(90deg, transparent, #8b0000, transparent);
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  /* ===== COLUMNA DE IMAGEN ===== */
+  .biografia-imagen-columna {
+    width: 600px;
+    flex-shrink: 0;
+  }
+
+  .biografia-imagen-contenedor {
+    position: sticky;
+    top: 100px; /* La imagen se queda pegada al hacer scroll */
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(2px);
+    padding: 1rem;
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  }
+
+  .biografia-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .biografia-img:hover {
+    transform: scale(1.02);
+  }
+
+  .biografia-img-titulo {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* ===== IMAGEN CENTRADA ===== */
+  .biografia-imagen-centro {
+    width: 100%;
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .biografia-imagen-centro .biografia-img {
+    max-width: 100%;
+    max-height: 400px;
+    width: auto;
+    margin: 0 auto;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .biografia-flex {
+      flex-direction: column;
+    }
+
+    .biografia-imagen-columna {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .biografia-imagen-contenedor {
+      position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .biografia-contenido {
+      padding: 1.5rem;
+    }
+
+    .biografia-parrafo {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .biografia-imagen-columna {
+      max-width: 100%;
+    }
+  }
+</style>

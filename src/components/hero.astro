@@ -1,0 +1,127 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  primaryButtonText?: string;
+  primaryButtonLink?: string;
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
+  backgroundImage?: ImageMetadata | string; // <-- CAMBIO IMPORTANTE: acepta string también
+  showScrollIndicator?: boolean;
+  videoSrc?: string;
+}
+
+const {
+  title = "Fear, Bloody, Horror and Pain",
+  primaryButtonText = "PRÓXIMOS EVENTOS",
+  primaryButtonLink = "#eventos",
+  secondaryButtonText = "ESCUCHAR",
+  secondaryButtonLink = "#discografia",
+  backgroundImage,
+  showScrollIndicator = true,
+  videoSrc,
+} = Astro.props;
+---
+
+<section
+  class="relative w-full min-h-screen flex items-center justify-center overflow-hidden"
+>
+  {/* Fondo con imagen o video */}
+  <div class="absolute inset-0">
+    {
+      videoSrc ? (
+        <video
+          autoplay
+          muted
+          loop
+          playsinline
+          class="w-full h-full object-cover opacity-90"
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
+      ) : backgroundImage ? (
+        // Verificar si backgroundImage es string (URL) o ImageMetadata
+        typeof backgroundImage === "string" ? (
+          <div
+            class="w-full h-full bg-cover bg-center opacity-60"
+            style={`background-image: url('${backgroundImage}')`}
+          />
+        ) : (
+          <Image
+            src={backgroundImage}
+            alt=""
+            class="w-full h-full object-cover opacity-60"
+          />
+        )
+      ) : (
+        <div class="w-full h-full bg-black" />
+      )
+    }
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"
+    >
+    </div>
+  </div>
+
+  {/* Contenido del hero */}
+  <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+    <h1
+      class="font-['New_Rocker'] text-5xl md:text-7xl tracking-tighter text-white mb-6 drop-shadow-2xl"
+    >
+      {title}
+    </h1>
+
+    {/* Botones CTA */}
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      {
+        primaryButtonText && (
+          <a href={primaryButtonLink} class="btn-primary">
+            {primaryButtonText}
+          </a>
+        )
+      }
+      {
+        secondaryButtonText && (
+          <a href={secondaryButtonLink} class="btn-secondary">
+            {secondaryButtonText}
+          </a>
+        )
+      }
+    </div>
+  </div>
+
+  {/* Scroll indicator */}
+  {
+    showScrollIndicator && (
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+          <div class="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse" />
+        </div>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  @reference "tailwindcss";
+
+  .hero-char:hover {
+    transform: translateY(-5px) rotate(-3deg) scale(1.1);
+    color: #ff0000;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+  }
+
+  .btn-primary {
+    @apply px-8 py-4 bg-white text-black font-bold uppercase tracking-widest text-sm 
+           hover:bg-gray-200 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-8 py-4 border border-white text-white font-bold uppercase tracking-widest text-sm 
+           hover:bg-white hover:text-black transition-colors;
+  }
+</style>
