@@ -44,29 +44,6 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
     )
   }
 
-  {/* Controles de paginación */}
-  {
-    totalPages > 1 && (
-      <div class="paginacion-controls" id="paginacion-controls">
-        <button
-          type="button"
-          class="paginacion-btn"
-          id="pagina-anterior"
-          disabled
-        >
-          <span class="paginacion-icon">‹</span>
-        </button>
-        <span class="paginacion-info">
-          Página <span id="pagina-actual">1</span> de{" "}
-          <span id="total-paginas">{totalPages}</span>
-        </span>
-        <button type="button" class="paginacion-btn" id="pagina-siguiente">
-          <span class="paginacion-icon">›</span>
-        </button>
-      </div>
-    )
-  }
-
   {/* Grid de imágenes */}
   <div class="galeria-grid" id="galeria-grid">
     {
@@ -91,7 +68,7 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
                   </h3>
                   {img.date && (
                     <p class="gallery-date">
-                      📅{" "}
+                      {" "}
                       {new Date(img.date).toLocaleDateString("es-ES", {
                         year: "numeric",
                         month: "long",
@@ -108,7 +85,7 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
                     </span>
                   )}
                   <div class="gallery-hint">
-                    <span>🔍</span> Click para ampliar
+                    <span></span> Click para ampliar
                   </div>
                 </div>
               </div>
@@ -169,12 +146,11 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
         </div>
         <div class="lightbox-footer">
           <div class="lightbox-caption" id="lightbox-caption"></div>
-          <div class="lightbox-counter" id="lightbox-counter">1 / 10</div>
         </div>
       </div>
     </div>
   </div>
-
+</div>
   <script>
     (function () {
       document.addEventListener("DOMContentLoaded", () => {
@@ -197,9 +173,6 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
         ) as HTMLImageElement | null;
         const lightboxCaption = document.getElementById(
           "lightbox-caption",
-        ) as HTMLElement | null;
-        const lightboxCounter = document.getElementById(
-          "lightbox-counter",
         ) as HTMLElement | null;
         const lightboxClose = document.getElementById(
           "lightbox-close",
@@ -258,12 +231,6 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
           );
           currentPage = 1;
           updatePagination();
-
-          const counter =
-            document.querySelector<HTMLElement>(".galeria-counter");
-          if (counter) {
-            counter.textContent = `${filteredItems.length} ${filteredItems.length === 1 ? "IMAGEN" : "IMÁGENES"} EN TOTAL`;
-          }
         };
 
         // Eventos de paginación
@@ -291,12 +258,6 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
         // Funciones del lightbox
         const getVisibleItems = (): HTMLElement[] => filteredItems;
 
-        const updateLightboxCounter = (): void => {
-          if (!lightboxCounter) return;
-          const items = getVisibleItems();
-          lightboxCounter.textContent = `${currentLightboxIndex + 1} / ${items.length}`;
-        };
-
         const openLightbox = (index: number): void => {
           const items = getVisibleItems();
           if (!items.length || !lightbox || !lightboxImg || !lightboxCaption)
@@ -315,7 +276,7 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
 
           lightboxImg.src = item.dataset.image || "";
           lightboxCaption.textContent = item.dataset.title || "";
-          updateLightboxCounter();
+
           lightbox.classList.add("show");
         };
 
@@ -333,7 +294,6 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
 
           lightboxImg.src = item.dataset.image || "";
           lightboxCaption.textContent = item.dataset.title || "";
-          updateLightboxCounter();
         };
 
         const nextImage = (): void => {
@@ -347,7 +307,6 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
 
           lightboxImg.src = item.dataset.image || "";
           lightboxCaption.textContent = item.dataset.title || "";
-          updateLightboxCounter();
         };
 
         // Eventos de imágenes
@@ -411,4 +370,3 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
       });
     })();
   </script>
-</div>

@@ -4,9 +4,9 @@ section_type: "biografia"
 order: 4
 background:
   type: "video"
-  src: "/videos/nube.mp4"
+  src: "Letal/videos/nube.mp4"
   opacity: 1
-imagen: "/images/backgrounds/bg_3.jpg"
+imagen: "Letal/images/backgrounds/bg_3.jpg"
 imagen_titulo: "LETAL en concierto, 2024"
 imagen_posicion: "derecha"
 body: |
