@@ -140,13 +140,13 @@ const sections: Seccion[] = secciones
                   data-speed="0.4"
                   style={`opacity: ${sec.data.backgroundOpacity}; object-fit: cover;`}
                 >
-                  <source src={`${import.meta.env.BASE_URL}/${sec.data.backgroundSrc.replace(/^\//, '')}`} type="video/mp4" />
+                  <source src={`${import.meta.env.BASE_URL}${sec.data.backgroundSrc.replace(/^\//, '')}`} type="video/mp4" />
                 </video>
               ) : (
                 <div
                   class="parallax-media"
                   data-speed="0.5"
-                  style={`background-image: url('${import.meta.env.BASE_URL}/${sec.data.backgroundSrc.replace(/^\//, '')}'); opacity: ${sec.data.backgroundOpacity};`}
+                  style={`background-image: url('${import.meta.env.BASE_URL}${sec.data.backgroundSrc.replace(/^\//, '')}'); opacity: ${sec.data.backgroundOpacity};`}
                 />
               )}
               <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80 z-1" />

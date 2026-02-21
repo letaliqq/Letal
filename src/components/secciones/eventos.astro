@@ -51,7 +51,7 @@ const totalPages = Math.ceil(eventos.length / ITEMS_PER_PAGE);
           {/* Flyer del evento (si existe) */}
           {e.flyer && (
             <div class="event-flyer">
-             <img src={`${import.meta.env.BASE_URL}/${e.flyer.replace(/^\//, '')}`} alt={`Flyer para ${e.lugar}`} class="flyer-image" />
+             <img src={`${import.meta.env.BASE_URL}${e.flyer.replace(/^\//, '')}`} alt={`Flyer para ${e.lugar}`} class="flyer-image" />
             </div>
           )}
 
