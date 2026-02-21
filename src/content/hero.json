@@ -1,7 +1,7 @@
 {
   "title": "Fear, Bloody, Horror and Pain.",
-  "videoSrc": "Letal/videos/bg_1.mp4",
-  "backgroundImage": "Letal/images/hero-bg.jpg",
+  "videoSrc": "/videos/bg_1.mp4",
+  "backgroundImage": "/images/hero-bg.jpg",
   "primaryButtonText": "PRÓXIMOS EVENTOS",
   "primaryButtonLink": "#eventos",
   "secondaryButtonText": "ESCUCHAR",

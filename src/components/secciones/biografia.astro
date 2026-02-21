@@ -36,7 +36,7 @@ const parrafos = body.split("\n\n").filter((p) => p.trim() !== "");
       imagen && imagen_posicion === "derecha" && (
         <div class="biografia-imagen-columna">
           <div class="biografia-imagen-contenedor">
-            <img src={imagen} alt={imagen_titulo} class="biografia-img" />
+            <img src={`${import.meta.env.BASE_URL}/${imagen.replace(/^\//, '')}`} alt={imagen_titulo} class="biografia-img" />
             {imagen_titulo && (
               <p class="biografia-img-titulo">{imagen_titulo}</p>
             )}
@@ -49,7 +49,7 @@ const parrafos = body.split("\n\n").filter((p) => p.trim() !== "");
     {
       imagen && imagen_posicion === "centro" && (
         <div class="biografia-imagen-centro">
-          <img src={imagen} alt={imagen_titulo} class="biografia-img" />
+          <img src={`${import.meta.env.BASE_URL}/${imagen.replace(/^\//, '')}`} alt={imagen_titulo} class="biografia-img" />
           {imagen_titulo && <p class="biografia-img-titulo">{imagen_titulo}</p>}
         </div>
       )

@@ -4,7 +4,7 @@ section_type: "contacto"
 order: 5
 background:
   type: "video"
-  src: "Letal/videos/fire2.mp4"
+  src: "/videos/fire2.mp4"
   opacity: 0.6
 contacto:
   - tipo: "Instagram"

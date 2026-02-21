@@ -116,7 +116,7 @@ const totalPages = Math.ceil(discos.length / ITEMS_PER_PAGE);
           {/* Carátula cuadrada */}
           <div class="disco-cover">
             {disco.cover ? (
-              <img src={disco.cover} alt={disco.titulo} class="cover-image" />
+              <img src={`${import.meta.env.BASE_URL}/${disco.cover.replace(/^\//, '')}`} alt={disco.titulo} class="cover-image" />
             ) : (
               <div class="cover-placeholder">
                 <span>{disco.titulo.charAt(0)}</span>

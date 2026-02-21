@@ -4,7 +4,7 @@ section_type: "eventos"
 order: 3
 background:
   type: "image"
-  src: "Letal/images/backgrounds/bg_2.jpg"
+  src: "/images/backgrounds/bg_2.jpg"
   opacity: 1
 eventos:
   - fecha: "15 MAR 2026"
