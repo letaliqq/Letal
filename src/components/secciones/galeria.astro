@@ -53,14 +53,14 @@ const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
           class="gallery-item"
           data-category={img.category || "otras"}
           data-index={index}
-          data-image={`${import.meta.env.BASE_URL}/${img.image.replace(/^\//, '')}`}
+          data-image={`${import.meta.env.BASE_URL}${img.image.replace(/^\//, '')}`}
           data-title={img.title || `GALERÍA ${index + 1}`}
           style="display: none;"
         >
           <div class="gallery-card">
             <div
               class="gallery-image"
-              style={`background-image: url('${import.meta.env.BASE_URL}/${img.image.replace(/^\//, '')}');`}
+              style={`background-image: url('${import.meta.env.BASE_URL}${img.image.replace(/^\//, '')}');`}
             >
               <div class="gallery-overlay">
                 <div class="gallery-info">
