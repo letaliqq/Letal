@@ -17,6 +17,6 @@ discos:
     año: "2023"
     cover: "/images/discografia/FBHP.png"
     plataformas:
-      spotify: ""
+      spotify: "https://open.spotify.com/intl-es/album/4PBglReyqbJwDzf2j7M5sP?si=ymWEGM9jR9eg0ED8iK_NqQ"
       youtube: "https://www.youtube.com/watch?v=Q17rooFsqTg"
 ---
